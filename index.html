@@ -1,0 +1,142 @@
+<html>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+<script src="handlebars-1.0.0.beta.6.js" type="text/javascript"></script>
+<script src="ember-latest.js" type="text/javascript"></script>
+
+<script id="handlebars-test-template" type="text/x-handlebars-template">
+  <h1>Handlebars</h1>
+  <table>
+    <tr>
+      <th>Name</td>
+      <th>Email</td>
+      <th>Company</td>
+      <th>City</td>
+    </tr>  
+  {{#rows}}
+    <tr>
+      <td>{{name}}</td>
+      <td>{{email}}</td>
+      <td>{{company}}</td>
+      <td>{{city}}</td>
+    </tr>
+  {{/rows}}
+  </table>
+</script>
+
+<script data-template-name="ember-test-template" type="text/x-handlebars">
+  <h1>Ember Template</h1>
+  <table>
+    <tr>
+      <th>Name</td>
+      <th>Email</td>
+      <th>Company</td>
+      <th>City</td>
+    </tr>  
+  {{#each people}}
+    <tr>
+      <td>{{name}}</td>
+      <td>{{email}}</td>
+      <td>{{company}}</td>
+      <td>{{city}}</td>
+    </tr>
+  {{/each}}
+  </table>
+</script>
+
+<script data-template-name="ember-test-template-unbound" type="text/x-handlebars">
+  <h1>Ember Unbound</h1>
+  <table>
+    <tr>
+      <th>Name</td>
+      <th>Email</td>
+      <th>Company</td>
+      <th>City</td>
+    </tr>  
+  {{#collection contentBinding="people" tagName="tbody"}}
+    <tr>
+      <td>{{unbound view.content.name}}</td>
+      <td>{{unbound view.content.email}}</td>
+      <td>{{unbound view.content.company}}</td>
+      <td>{{unbound view.content.city}}</td>
+    </tr>
+  {{/collection}}
+  </table>
+</script>
+
+
+<script>
+
+  var data = []
+
+  function renderHandlebars() {
+
+    var source   = $("#handlebars-test-template").html();
+    var template = Handlebars.compile(source);
+
+    $('#timings').hide()
+
+    var t0 = new Date()
+    rendered = template(data)
+    $('#time-taken').html(new Date() - t0)
+    t0 = new Date()
+    $('#main').html(rendered)
+    $('#browser-time-taken').html(new Date() - t0)
+
+
+    $('#timings').show()
+  }
+
+  var Person = Ember.Object.extend({})
+
+  function renderEmber(templateName) {
+
+    var people = Em.A()
+    data.rows.forEach(function (row) {
+      people.pushObject(Person.create(row))
+    })
+
+    var view = Ember.View.create({
+      templateName: templateName,
+      people: people
+    });
+
+    view.appendTo('#main');
+
+    t0 = new Date()
+    Em.run.next(function () {
+      $('#time-taken').html("-")
+      $('#browser-time-taken').html(new Date() - t0)
+      $('#timings').show()
+    })
+  }
+
+  function dataLoaded(loaded) {
+    data = {rows: loaded}
+    $('#buttons').show()  
+  }
+</script>
+
+<body>
+
+  <div id='buttons' style='display: none'>
+    <button onClick="renderHandlebars()">Render Handlebars</button>
+    <button onClick="renderEmber('ember-test-template')">Render Ember</button>
+    <button onClick="renderEmber('ember-test-template-unbound')">Render Ember (Unbound)</button>
+  </div>
+
+  <div id='timings' style='display: none'>
+    Handlebars Rendering: <span id='time-taken'></span>
+    <br>
+    Browser Rendering: <span id='browser-time-taken'></span>
+
+    <hr>
+  </div>
+
+  <div id='main'>
+  </div>
+
+</body>
+
+<script src="data.js" type="text/javascript"></script>
+</html>
