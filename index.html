@@ -2,7 +2,7 @@
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
 <script src="handlebars-1.0.0.beta.6.js" type="text/javascript"></script>
-<script src="ember-latest.js" type="text/javascript"></script>
+<script src="ember.prod.js" type="text/javascript"></script>
 
 <script id="handlebars-test-template" type="text/x-handlebars-template">
   <h1>Handlebars</h1>
@@ -87,20 +87,11 @@
     $('#timings').show()
   }
 
+
   var Person = Ember.Object.extend({})
+  var people = Em.A()
 
-  function renderEmber(templateName) {
-
-    var people = Em.A()
-    data.rows.forEach(function (row) {
-      people.pushObject(Person.create(row))
-    })
-
-    var view = Ember.View.create({
-      templateName: templateName,
-      people: people
-    });
-
+  function renderEmberView(view) {
     view.appendTo('#main');
 
     t0 = new Date()
@@ -111,8 +102,38 @@
     })
   }
 
+  function renderEmberTemplate(templateName) {
+    renderEmberView(Ember.View.create({
+      templateName: templateName,
+      people: people
+    }))
+  }
+
+  function renderEmberRaw() {
+    renderEmberView(Ember.View.create({
+      people: people,
+
+      render: function (buffer) {
+        buffer.push("<h1>Ember Raw</h1><table><tr><th>Name</td><th>Email</td><th>Company</td><th>City</td></tr>")
+        this.get('people').forEach(function (person) {
+          buffer.push('<tr>')
+          buffer.push('<td>' + person.get('name') + '</td>')
+          buffer.push('<td>' + person.get('email') + '</td>')
+          buffer.push('<td>' + person.get('company') + '</td>')
+          buffer.push('<td>' + person.get('city') + '</td>')
+          buffer.push('</tr>')
+        })    
+        buffer.push("</table>")    
+      }
+
+    }))
+  }  
+
   function dataLoaded(loaded) {
     data = {rows: loaded}
+    data.rows.forEach(function (row) {
+      people.pushObject(Person.create(row))
+    })    
     $('#buttons').show()  
   }
 </script>
@@ -121,8 +142,9 @@
 
   <div id='buttons' style='display: none'>
     <button onClick="renderHandlebars()">Render Handlebars</button>
-    <button onClick="renderEmber('ember-test-template')">Render Ember</button>
-    <button onClick="renderEmber('ember-test-template-unbound')">Render Ember (Unbound)</button>
+    <button onClick="renderEmberTemplate('ember-test-template')">Render Ember</button>
+    <button onClick="renderEmberTemplate('ember-test-template-unbound')">Render Ember (Unbound)</button>
+    <button onClick="renderEmberRaw()">Render Ember (Raw)</button>
   </div>
 
   <div id='timings' style='display: none'>
