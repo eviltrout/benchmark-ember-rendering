@@ -44,8 +44,8 @@
   </table>
 </script>
 
-<script data-template-name="ember-test-template-unbound" type="text/x-handlebars">
-  <h1>Ember Unbound</h1>
+<script data-template-name="ember-test-template-unbound-collection" type="text/x-handlebars">
+  <h1>Ember Unbound collection</h1>
   <table>
     <tr>
       <th>Name</td>
@@ -64,6 +64,25 @@
   </table>
 </script>
 
+<script data-template-name="ember-test-template-unbound-each" type="text/x-handlebars">
+  <h1>Ember Unbound collection</h1>
+  <table>
+    <tr>
+      <th>Name</td>
+      <th>Email</td>
+      <th>Company</td>
+      <th>City</td>
+    </tr>  
+  {{#each people}}
+    <tr>
+      <td>{{unbound name}}</td>
+      <td>{{unbound email}}</td>
+      <td>{{unbound company}}</td>
+      <td>{{unbound city}}</td>
+    </tr>
+  {{/each}}
+  </table>
+</script>
 
 <script>
 
@@ -143,7 +162,8 @@
   <div id='buttons' style='display: none'>
     <button onClick="renderHandlebars()">Render Handlebars</button>
     <button onClick="renderEmberTemplate('ember-test-template')">Render Ember</button>
-    <button onClick="renderEmberTemplate('ember-test-template-unbound')">Render Ember (Unbound)</button>
+    <button onClick="renderEmberTemplate('ember-test-template-unbound-each')">Render Ember (Unbound collection)</button>
+    <button onClick="renderEmberTemplate('ember-test-template-unbound-collection')">Render Ember (Unbound each)</button>
     <button onClick="renderEmberRaw()">Render Ember (Raw)</button>
   </div>
 
