@@ -111,21 +111,28 @@
   var people = Em.A()
 
   function renderEmberView(view) {
-    view.appendTo('#main');
+    var t0 = new Date()
+    var v = view;
+    Em.run(function(){
+      v.appendTo('#main');
+    });
 
-    t0 = new Date()
-    Em.run.next(function () {
-      $('#time-taken').html("-")
-      $('#browser-time-taken').html(new Date() - t0)
-      $('#timings').show()
-    })
+    $('#time-taken').html("-");
+    $('#browser-time-taken').html(new Date() - t0);
+    $('#timings').show();
   }
 
   function renderEmberTemplate(templateName) {
-    renderEmberView(Ember.View.create({
+    if (window.$view) {
+      $view.destroy();
+      $view = null;
+    }
+    var view = Ember.View.create({
       templateName: templateName,
       people: people
-    }))
+    });
+    renderEmberView(view);
+    window.$view = view;
   }
 
   function renderEmberRaw() {
