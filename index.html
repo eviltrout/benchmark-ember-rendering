@@ -131,8 +131,135 @@
       templateName: templateName,
       people: people
     });
+
     renderEmberView(view);
     window.$view = view;
+  }
+
+  BenchmarkVM = {
+    template: function(templateSpec) {
+      // Just add water
+      var container = {
+        escapeExpression: Handlebars.Utils.escapeExpression,
+        invokePartial: Handlebars.VM.invokePartial,
+        programs: [],
+        program: function(i, fn, data) {
+          var programWrapper = this.programs[i];
+          if(data) {
+            return Handlebars.VM.program(fn, data);
+          } else if(programWrapper) {
+            return programWrapper;
+          } else {
+            programWrapper = this.programs[i] = Handlebars.VM.program(fn);
+            return programWrapper;
+          }
+        },
+        programWithDepth: Handlebars.VM.programWithDepth,
+        noop: Handlebars.VM.noop
+      };
+
+      return function(context, options) {
+        options = options || {};
+        return templateSpec.call(container, Handlebars, context, options.helpers, options.partials, options.data);
+      };
+    },
+
+    programWithDepth: function(fn, data, $depth) {
+      var args = Array.prototype.slice.call(arguments, 2);
+
+      return function(context, options) {
+        options = options || {};
+
+        return fn.apply(this, [context, options.data || data].concat(args));
+      };
+    },
+    program: function(fn, data) {
+      return function(context, options) {
+        options = options || {};
+
+        return fn(context, options.data || data);
+      };
+    },
+    noop: function() { return ""; },
+    invokePartial: function(partial, name, context, helpers, partials, data) {
+      var options = { helpers: helpers, partials: partials, data: data };
+
+      if(partial === undefined) {
+        throw new Handlebars.Exception("The partial " + name + " could not be found");
+      } else if(partial instanceof Function) {
+        return partial(context, options);
+      } else if (!Handlebars.compile) {
+        throw new Handlebars.Exception("The partial " + name + " could not be compiled when running in runtime-only mode");
+      } else {
+        partials[name] = Handlebars.compile(partial, {data: data !== undefined});
+        return partials[name](context, options);
+      }
+    }
+  };
+
+  function renderEmberPrecompiledTemplate() {
+    renderEmberView(Ember.View.create({
+      people: people,
+
+      preCompiled: function anonymous(Handlebars,depth0,helpers,partials,data) {
+        helpers = helpers || Ember.Handlebars.helpers; data = data || {};
+        var buffer = '', stack1, foundHelper, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression, self=this;
+
+        function program1(depth0,data) {
+          
+          var buffer = '', stack1, foundHelper;
+          data.buffer.push("\n    <tr>\n      <td>");
+          foundHelper = helpers.unbound;
+          stack1 = foundHelper ? foundHelper.call(depth0, "name", {hash:{},contexts:[depth0],data:data}) : helperMissing.call(depth0, "unbound", "name", {hash:{},contexts:[depth0],data:data});
+          data.buffer.push(escapeExpression(stack1) + "</td>\n      <td>");
+          foundHelper = helpers.unbound;
+          stack1 = foundHelper ? foundHelper.call(depth0, "email", {hash:{},contexts:[depth0],data:data}) : helperMissing.call(depth0, "unbound", "email", {hash:{},contexts:[depth0],data:data});
+          data.buffer.push(escapeExpression(stack1) + "</td>\n      <td>");
+          foundHelper = helpers.unbound;
+          stack1 = foundHelper ? foundHelper.call(depth0, "company", {hash:{},contexts:[depth0],data:data}) : helperMissing.call(depth0, "unbound", "company", {hash:{},contexts:[depth0],data:data});
+          data.buffer.push(escapeExpression(stack1) + "</td>\n      <td>");
+          foundHelper = helpers.unbound;
+          stack1 = foundHelper ? foundHelper.call(depth0, "city", {hash:{},contexts:[depth0],data:data}) : helperMissing.call(depth0, "unbound", "city", {hash:{},contexts:[depth0],data:data});
+          data.buffer.push(escapeExpression(stack1) + "</td>\n    </tr>\n  ");
+          return buffer;
+        }
+
+        data.buffer.push("\n  <h1>Ember Unbound collection</h1>\n  <table>\n    <tr>\n      <th>Name</td>\n      <th>Email</td>\n      <th>Company</td>\n      <th>City</td>\n    </tr>  \n  ");
+        stack1 = {};
+        stack1['contentBinding'] = "people";
+        stack1['tagName'] = "tbody";
+        foundHelper = helpers.collection;
+
+        stack1 = helpers.each.call(depth0, "people", {hash:{},inverse:self.noop,fn:self.program(1, program1, data),contexts:[depth0],data:data});
+        Em.get(depth0, 'people').forEach(function (person) { program1(person, data) });
+
+        if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+        data.buffer.push("\n  </table>\n");
+        return buffer;
+      },
+
+      render: function (buffer) {
+        template = BenchmarkVM.template(this.preCompiled) 
+
+        var context = Em.get(this, 'context');
+        var keywords = this.cloneKeywords();
+
+        var data = {
+          view: this,
+          buffer: buffer,
+          isRenderData: true,
+          keywords: keywords
+        };
+
+        var output = template(context, { data: data });
+
+        // If the template returned a string instead of writing to the buffer,
+        // push the string onto the buffer.
+        if (output !== undefined) { buffer.push(output); }
+
+      }
+
+    }))
   }
 
   function renderEmberRaw() {
@@ -171,6 +298,7 @@
     <button onClick="renderEmberTemplate('ember-test-template')">Render Ember</button>
     <button onClick="renderEmberTemplate('ember-test-template-unbound-each')">Render Ember (Unbound collection)</button>
     <button onClick="renderEmberTemplate('ember-test-template-unbound-collection')">Render Ember (Unbound each)</button>
+    <button onClick="renderEmberPrecompiledTemplate()">Render Ember (Precompiled)</button>
     <button onClick="renderEmberRaw()">Render Ember (Raw)</button>
   </div>
 
