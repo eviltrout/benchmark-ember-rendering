@@ -137,15 +137,33 @@
     renderEmberView(view);  
   }
 
-  function renderEmberPrecompiledTemplate() {
-    renderEmberView(Ember.View.create({
-      people: people,
 
-      render: function (buffer) {
-        buffer.push('test')
-      }
+  function renderEmberContainer() {
 
+    var container = Em.ContainerView.create();
+    var childViews = container.get('childViews')
+
+    childViews.pushObject(Ember.View.create({
+      render: function (buffer) { buffer.push("<h1>Ember Container</h1><table><tr><th>Name</td><th>Email</td><th>Company</td><th>City</td></tr>") }
     }))
+    people.forEach(function (p) {
+      childViews.pushObject(Ember.View.create({
+        person: p,
+        render: function (buffer) {
+          buffer.push('<tr>')
+          buffer.push('<td>' + this.get('person.name') + '</td>')
+          buffer.push('<td>' + this.get('person.email') + '</td>')
+          buffer.push('<td>' + this.get('person.company') + '</td>')
+          buffer.push('<td>' + this.get('person.city') + '</td>')
+          buffer.push('</tr>')
+        }
+      }))
+    })
+    childViews.pushObject(Ember.View.create({
+      render: function (buffer) { buffer.push("</table>") }
+    }))
+
+    renderEmberView(container);
   }
 
   function renderEmberRaw() {
@@ -184,7 +202,7 @@
     <button onClick="renderEmberTemplate('ember-test-template')">Render Ember</button>
     <button onClick="renderEmberTemplate('ember-test-template-unbound-each')">Render Ember (Unbound collection)</button>
     <button onClick="renderEmberTemplate('ember-test-template-unbound-collection')">Render Ember (Unbound each)</button>
-    <button onClick="renderEmberPrecompiledTemplate()">Render Ember (Precompiled)</button>
+    <button onClick="renderEmberContainer()">Render Ember (Container)</button>
     <button onClick="renderEmberRaw()">Render Ember (Raw)</button>
   </div>
 
