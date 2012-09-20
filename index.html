@@ -144,18 +144,17 @@
     var childViews = container.get('childViews')
 
     childViews.pushObject(Ember.View.create({
-      render: function (buffer) { buffer.push("<h1>Ember Container</h1><table><tr><th>Name</td><th>Email</td><th>Company</td><th>City</td></tr>") }
+      render: function (buffer) { buffer.push("<h1>Ember Container</h1><table><tr><th>Name</th><th>Email</th><th>Company</th><th>City</th></tr>") }
     }))
     people.forEach(function (p) {
       childViews.pushObject(Ember.View.create({
         person: p,
+        tagName: 'tr',
         render: function (buffer) {
-          buffer.push('<tr>')
           buffer.push('<td>' + this.get('person.name') + '</td>')
           buffer.push('<td>' + this.get('person.email') + '</td>')
           buffer.push('<td>' + this.get('person.company') + '</td>')
           buffer.push('<td>' + this.get('person.city') + '</td>')
-          buffer.push('</tr>')
         }
       }))
     })
@@ -171,7 +170,7 @@
       people: people,
 
       render: function (buffer) {
-        buffer.push("<h1>Ember Raw</h1><table><tr><th>Name</td><th>Email</td><th>Company</td><th>City</td></tr>")
+        buffer.push("<h1>Ember Raw</h1><table><tr><th>Name</th><th>Email</th><th>Company</th><th>City</th></tr>")
         this.get('people').forEach(function (person) {
           buffer.push('<tr>')
           buffer.push('<td>' + person.get('name') + '</td>')
