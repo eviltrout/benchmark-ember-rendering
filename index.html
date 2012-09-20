@@ -53,13 +53,11 @@
       <th>Company</td>
       <th>City</td>
     </tr>  
-  {{#collection contentBinding="people" tagName="tbody"}}
-    <tr>
+  {{#collection contentBinding="people" tagName="tbody" itemTagName="tr"}}
       <td>{{unbound view.content.name}}</td>
       <td>{{unbound view.content.email}}</td>
       <td>{{unbound view.content.company}}</td>
       <td>{{unbound view.content.city}}</td>
-    </tr>
   {{/collection}}
   </table>
 </script>
@@ -138,6 +136,41 @@
   }
 
 
+var get = Ember.get, set = Ember.set, addObserver = Ember.addObserver, removeObserver = Ember.removeObserver;
+var meta = Ember.meta, fmt = Ember.String.fmt;
+var a_slice = [].slice;
+var a_forEach = Ember.EnumerableUtils.forEach;
+
+var childViewsProperty = Ember.computed(function() {
+  var childViews = this._childViews;
+
+  var ret = Ember.A();
+
+  a_forEach(childViews, function(view) {
+    if (view.isVirtual) {
+      ret.pushObjects(get(view, 'childViews'));
+    } else {
+      ret.push(view);
+    }
+  });
+
+  return ret;
+}).property().cacheable();
+
+  var CustomContainer = Em.View.extend({
+    init: function() {
+      this._super();
+      var childViews = get(this, 'childViews');
+      Ember.defineProperty(this, 'childViews', childViewsProperty);
+    },
+
+    render: function(buffer) {
+      this.get('childViews').forEach(function (cv) {
+        cv.renderToBuffer(buffer)        
+      })
+    },
+  });
+
   function renderEmberContainer() {
 
     var container = Em.ContainerView.create();
@@ -151,10 +184,12 @@
         person: p,
         tagName: 'tr',
         render: function (buffer) {
+
           buffer.push('<td>' + this.get('person.name') + '</td>')
           buffer.push('<td>' + this.get('person.email') + '</td>')
           buffer.push('<td>' + this.get('person.company') + '</td>')
           buffer.push('<td>' + this.get('person.city') + '</td>')
+
         }
       }))
     })
@@ -199,9 +234,9 @@
   <div id='buttons' style='display: none'>
     <button onClick="renderHandlebars()">Render Handlebars</button>
     <button onClick="renderEmberTemplate('ember-test-template')">Render Ember</button>
-    <button onClick="renderEmberTemplate('ember-test-template-unbound-each')">Render Ember (Unbound collection)</button>
-    <button onClick="renderEmberTemplate('ember-test-template-unbound-collection')">Render Ember (Unbound each)</button>
-    <button onClick="renderEmberContainer()">Render Ember (Container)</button>
+    <button onClick="renderEmberTemplate('ember-test-template-unbound-collection')">Render Ember (Unbound collection)</button>
+    <button onClick="renderEmberTemplate('ember-test-template-unbound-each')">Render Ember (Unbound each)</button>
+    <button onClick="renderEmberContainer()">Render Ember (ContainerView)</button>
     <button onClick="renderEmberRaw()">Render Ember (Raw)</button>
   </div>
 

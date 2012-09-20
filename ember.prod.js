@@ -17863,7 +17863,6 @@ Ember.Handlebars.compile = function(string) {
   var options = { data: true, stringParams: true };
   var environment = new Ember.Handlebars.Compiler().compile(ast, options);
   var templateSpec = new Ember.Handlebars.JavaScriptCompiler().compile(environment, options, undefined, true);
-
   return Handlebars.template(templateSpec);
 };
 
