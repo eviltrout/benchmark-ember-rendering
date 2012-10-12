@@ -82,6 +82,52 @@
   </table>
 </script>
 
+<script data-template-name="ember-test-template-unbound-group" type="text/x-handlebars">
+  <h1>Ember Unbound collection</h1>
+  <table>
+    <tr>
+      <th>Name</td>
+      <th>Email</td>
+      <th>Company</td>
+      <th>City</td>
+    </tr>  
+
+  {{#group}}
+    {{#each people}}
+      <tr>
+        <td>{{unbound name}}</td>
+        <td>{{unbound email}}</td>
+        <td>{{unbound company}}</td>
+        <td>{{unbound city}}</td>
+      </tr>
+    {{/each}}
+  {{/group}}
+  </table>
+</script>
+
+<script data-template-name="ember-test-template-bound-group" type="text/x-handlebars">
+  <h1>Ember Unbound collection</h1>
+  <table>
+    <tr>
+      <th>Name</td>
+      <th>Email</td>
+      <th>Company</td>
+      <th>City</td>
+    </tr>  
+  {{#group}}
+    {{#each people}}
+      <tr>
+        <td>{{name}}</td>
+        <td>{{email}}</td>
+        <td>{{company}}</td>
+        <td>{{city}}</td>
+      </tr>
+    {{/each}}
+  {{/group}}
+  </table>
+</script>
+
+
 <script>
 
   var data = [];
@@ -225,19 +271,22 @@ var childViewsProperty = Ember.computed(function() {
     data.rows.forEach(function (row) {
       people.pushObject(Person.create(row))
     })    
+    Ember.Handlebars.bootstrap($(document))
     $('#buttons').show()  
   }
 </script>
 
 <body>
 
-  <div id='buttons' style='display: none'>
-    <button onClick="renderHandlebars()">Render Handlebars</button>
-    <button onClick="renderEmberTemplate('ember-test-template')">Render Ember</button>
-    <button onClick="renderEmberTemplate('ember-test-template-unbound-collection')">Render Ember (Unbound collection)</button>
-    <button onClick="renderEmberTemplate('ember-test-template-unbound-each')">Render Ember (Unbound each)</button>
-    <button onClick="renderEmberContainer()">Render Ember (ContainerView)</button>
-    <button onClick="renderEmberRaw()">Render Ember (Raw)</button>
+  <div id='buttons' style='display: none'>    
+    <button onClick="renderEmberTemplate('ember-test-template')">Render (bound #each)</button>
+    <button onClick="renderEmberTemplate('ember-test-template-bound-group')">Render (bound #group)</button>    
+    <button onClick="renderEmberTemplate('ember-test-template-unbound-collection')">Render (Unbound #collection)</button>
+    <button onClick="renderEmberTemplate('ember-test-template-unbound-each')">Render (unbound #each)</button>        
+    <button onClick="renderEmberTemplate('ember-test-template-unbound-group')">Render (unbound #group)</button>        
+    <button onClick="renderEmberContainer()">Render (Raw ContainerView)</button>    
+    <button onClick="renderEmberRaw()">Render (Raw)</button>
+    <button onClick="renderHandlebars()">Render Handlebars</button>    
   </div>
 
   <div id='timings' style='display: none'>
